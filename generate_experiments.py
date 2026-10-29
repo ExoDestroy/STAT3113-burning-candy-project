@@ -2,6 +2,9 @@ import argparse
 import csv
 from random import shuffle
 
+TRIAL_MIN = 36
+LEVELS = 3
+
 # Utilized argparse in case we decide to change the trials or factors later.
 parser = argparse.ArgumentParser()
 parser.add_argument("--trials", type=int)
@@ -11,13 +14,9 @@ parser.add_argument("--flavor", nargs='+', type=str, help='A list of candy flavo
 parser.set_defaults(trials=45, brand=["Jujyfruits", "Mike and Ike", "Dots"], flavor=["Lime", "Orange", "Lemon"])
 args = parser.parse_args()
 
-if args.trials < 0:
-    parser.error("--trials must be positive")
-
-if args.brand is None or args.flavor is None:
-    parser.error("--brand/--flavor must have input")
-
-treatments = len(args.brand) * len(args.flavor)
+# Assignment requires a minimum of 36 trials.
+if args.trials < TRIAL_MIN:
+    parser.error("--trials must be at least 36")
 
 if args.trials % (len(args.brand) * len(args.flavor)):
     parser.error(f"""Ensure trials / treatments divides evenly for equal number of each replicate.
@@ -31,7 +30,7 @@ replicate_count = args.trials // treatments
 for b in args.brand:
     for f in args.flavor:
         for i in range(replicate_count):
-            data.append([b, f, 0])
+            data.append([b, f, '-'])
 
 # Randomizes experiment order (except first line for the column names).
 shuffle(data)
@@ -40,6 +39,5 @@ data.insert(0, ["Brand", "Flavor", "Time (s)"])
 # Creates a csv file
 with open("burning_candy.csv", "w", newline='') as csvfile:
     writer = csv.writer(csvfile)
-    # Only write to brand & flavor columns
     writer.writerows(data)
 
